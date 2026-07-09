@@ -1,0 +1,22 @@
+meta {
+  name: Update Profile
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{base_url}}/auth/profile
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Updated Name",
+    "settings": {
+      "theme": "dark",
+      "language": "en",
+      "currency_code": "EUR"
+    }
+  }
+}

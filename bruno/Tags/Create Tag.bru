@@ -1,0 +1,18 @@
+meta {
+  name: Create Tag
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/tags
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Salary",
+    "color": "#10b981"
+  }
+}

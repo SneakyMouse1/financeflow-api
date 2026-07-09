@@ -1,0 +1,25 @@
+meta {
+  name: Create Recurring Transaction
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/recurring-transactions
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Netflix subscription",
+    "account_id": 1,
+    "category_id": 1,
+    "type": "expense",
+    "amount": 14.99,
+    "currency_code": "EUR",
+    "frequency": "monthly",
+    "next_run_at": "2026-07-10",
+    "comment": "Monthly entertainment plan"
+  }
+}

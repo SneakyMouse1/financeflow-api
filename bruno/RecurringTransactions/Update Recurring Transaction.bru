@@ -1,0 +1,18 @@
+meta {
+  name: Update Recurring Transaction
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{base_url}}/recurring-transactions/1
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "Netflix Premium",
+    "amount": 19.99
+  }
+}

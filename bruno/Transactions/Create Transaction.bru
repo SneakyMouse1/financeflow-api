@@ -1,0 +1,23 @@
+meta {
+  name: Create Transaction
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{base_url}}/transactions
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "account_id": 1,
+    "category_id": null,
+    "type": "expense",
+    "amount": 50.00,
+    "currency_code": "EUR",
+    "date": "2026-07-03",
+    "comment": "Grocery shopping"
+  }
+}

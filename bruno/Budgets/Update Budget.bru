@@ -1,0 +1,18 @@
+meta {
+  name: Update Budget
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{base_url}}/budgets/1
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "amount": 750.00,
+    "period": "monthly"
+  }
+}

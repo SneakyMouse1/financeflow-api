@@ -1,0 +1,20 @@
+meta {
+  name: Create Goal
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/goals
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "name": "MacBook Pro",
+    "target_amount": 2000.00,
+    "currency_code": "EUR",
+    "deadline": "2026-12-31"
+  }
+}

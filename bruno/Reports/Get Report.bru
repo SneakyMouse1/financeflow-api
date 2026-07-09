@@ -1,0 +1,11 @@
+meta {
+  name: Get Report
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{base_url}}/reports?date_from=2026-07-01&date_to=2026-07-31
+  body: none
+  auth: inherit
+}

@@ -1,0 +1,23 @@
+meta {
+  name: Create Transfer
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base_url}}/transactions
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "account_id": 1,
+    "to_account_id": 2,
+    "type": "transfer",
+    "amount": 200.00,
+    "currency_code": "EUR",
+    "date": "2026-07-03",
+    "comment": "Savings transfer"
+  }
+}
