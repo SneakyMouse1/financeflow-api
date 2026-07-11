@@ -14,7 +14,7 @@ class CategoryTest extends TestCase
     /**
      * Number of default categories created by UserObserver for every new user.
      */
-    private const DEFAULT_CATEGORY_COUNT = 10;
+    private const DEFAULT_CATEGORY_COUNT = 20;
 
     public function test_registration_creates_default_categories()
     {
