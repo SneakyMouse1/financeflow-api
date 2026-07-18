@@ -27,7 +27,13 @@ class TransactionService
             ->when($filters['currency_code'] ?? null, fn ($q, $v) => $q->where('currency_code', $v))
             ->when($filters['date_from'] ?? null, fn ($q, $v) => $q->whereDate('date', '>=', $v))
             ->when($filters['date_to'] ?? null, fn ($q, $v) => $q->whereDate('date', '<=', $v))
-            ->when($filters['search'] ?? null, fn ($q, $v) => $q->where('comment', 'like', "%{$v}%"))
+            ->when($filters['search'] ?? null, function ($q, $v) {
+                return $q->where(function ($query) use ($v) {
+                    $query->where('comment', 'like', "%{$v}%")
+                        ->orWhereHas('tags', fn ($q) => $q->where('name', 'like', "%{$v}%"))
+                        ->orWhereHas('category', fn ($q) => $q->where('name', 'like', "%{$v}%"));
+                });
+            })
             ->when($filters['tag'] ?? null, fn ($q, $v) => $q->whereHas('tags', fn ($q) => $q->where('name', $v)))
             ->when($filters['sort'] ?? null, function ($q, $v) {
                 // '-amount' means descending, 'amount' means ascending

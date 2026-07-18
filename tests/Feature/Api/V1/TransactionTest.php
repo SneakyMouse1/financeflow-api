@@ -166,4 +166,45 @@ class TransactionTest extends TestCase
         ]);
         $this->assertEquals(25, $response->json('meta.total'));
     }
+
+    public function test_can_search_transactions_by_tag_and_category_name()
+    {
+        $user = User::factory()->create();
+        $account = Account::factory()->create(['user_id' => $user->id]);
+        $category = Category::factory()->create(['user_id' => $user->id, 'name' => 'Groceries']);
+        
+        $tx1 = Transaction::factory()->create([
+            'user_id'     => $user->id,
+            'account_id'  => $account->id,
+            'category_id' => $category->id,
+            'comment'     => 'Bought apple juice',
+        ]);
+        
+        $tx2 = Transaction::factory()->create([
+            'user_id'    => $user->id,
+            'account_id' => $account->id,
+            'comment'    => 'Some other thing',
+        ]);
+        
+        $tag = \App\Models\Tag::create(['user_id' => $user->id, 'name' => 'supermarket']);
+        $tx2->tags()->attach($tag);
+        
+        // Search by category name "groceries"
+        $response = $this->actingAs($user)->getJson('/api/v1/transactions?search=groceries');
+        $response->assertStatus(200);
+        $response->assertJsonCount(1, 'data');
+        $this->assertEquals($tx1->id, $response->json('data.0.id'));
+        
+        // Search by tag name "supermarket"
+        $response = $this->actingAs($user)->getJson('/api/v1/transactions?search=supermarket');
+        $response->assertStatus(200);
+        $response->assertJsonCount(1, 'data');
+        $this->assertEquals($tx2->id, $response->json('data.0.id'));
+        
+        // Search by comment "apple"
+        $response = $this->actingAs($user)->getJson('/api/v1/transactions?search=apple');
+        $response->assertStatus(200);
+        $response->assertJsonCount(1, 'data');
+        $this->assertEquals($tx1->id, $response->json('data.0.id'));
+    }
 }
