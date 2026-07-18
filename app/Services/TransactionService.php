@@ -28,10 +28,11 @@ class TransactionService
             ->when($filters['date_from'] ?? null, fn ($q, $v) => $q->whereDate('date', '>=', $v))
             ->when($filters['date_to'] ?? null, fn ($q, $v) => $q->whereDate('date', '<=', $v))
             ->when($filters['search'] ?? null, function ($q, $v) {
-                return $q->where(function ($query) use ($v) {
-                    $query->where('comment', 'like', "%{$v}%")
-                        ->orWhereHas('tags', fn ($q) => $q->where('name', 'like', "%{$v}%"))
-                        ->orWhereHas('category', fn ($q) => $q->where('name', 'like', "%{$v}%"));
+                $searchTerm = strtolower($v);
+                return $q->where(function ($query) use ($searchTerm) {
+                    $query->where(DB::raw('lower(comment)'), 'like', "%{$searchTerm}%")
+                        ->orWhereHas('tags', fn ($q) => $q->where(DB::raw('lower(name)'), 'like', "%{$searchTerm}%"))
+                        ->orWhereHas('category', fn ($q) => $q->where(DB::raw('lower(name)'), 'like', "%{$searchTerm}%"));
                 });
             })
             ->when($filters['tag'] ?? null, fn ($q, $v) => $q->whereHas('tags', fn ($q) => $q->where('name', $v)))
