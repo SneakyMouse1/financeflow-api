@@ -206,5 +206,11 @@ class TransactionTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonCount(1, 'data');
         $this->assertEquals($tx1->id, $response->json('data.0.id'));
+
+        // Search by comment "APPLE" (case insensitive test)
+        $response = $this->actingAs($user)->getJson('/api/v1/transactions?search=APPLE');
+        $response->assertStatus(200);
+        $response->assertJsonCount(1, 'data');
+        $this->assertEquals($tx1->id, $response->json('data.0.id'));
     }
 }
