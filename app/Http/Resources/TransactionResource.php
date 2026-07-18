@@ -29,6 +29,12 @@ class TransactionResource extends JsonResource
             'date' => $this->date->toDateString(),
             'comment' => $this->comment,
             'transfer_id' => $this->transfer_id,
+            'related_transaction' => $this->whenLoaded('relatedTransaction', function () {
+                return [
+                    'id' => $this->relatedTransaction->id,
+                    'account' => new AccountResource($this->relatedTransaction->account),
+                ];
+            }),
             'tags' => TagResource::collection($this->whenLoaded('tags')),
             'attachments' => AttachmentResource::collection($this->whenLoaded('attachments')),
             'created_at' => $this->created_at->toDateTimeString(),
