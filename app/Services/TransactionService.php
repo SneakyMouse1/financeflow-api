@@ -20,7 +20,7 @@ class TransactionService
     public function getAll(User $user, array $filters = []): LengthAwarePaginator
     {
         return $user->transactions()
-            ->with(['account', 'category', 'tags'])
+            ->with(['account', 'category', 'tags', 'relatedTransaction.account'])
             ->when($filters['account_id'] ?? null, fn ($q, $v) => $q->where('account_id', $v))
             ->when($filters['category_id'] ?? null, fn ($q, $v) => $q->where('category_id', $v))
             ->when($filters['type'] ?? null, fn ($q, $v) => $q->where('type', $v))
