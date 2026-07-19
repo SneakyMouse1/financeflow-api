@@ -1,3 +1,6 @@
+## Related repositories
+- Frontend (React SPA): [financeflow-web](https://github.com/SneakyMouse1/financeflow-web)
+
 # FinanceFlow API
 
 A RESTful API for personal finance management built with Laravel.
