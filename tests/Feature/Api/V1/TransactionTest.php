@@ -213,4 +213,59 @@ class TransactionTest extends TestCase
         $response->assertJsonCount(1, 'data');
         $this->assertEquals($tx1->id, $response->json('data.0.id'));
     }
+
+    public function test_can_filter_transactions_by_type()
+    {
+        $user = User::factory()->create();
+        $account1 = Account::factory()->create(['user_id' => $user->id, 'balance' => 1000]);
+        $account2 = Account::factory()->create(['user_id' => $user->id, 'balance' => 1000]);
+
+        // 1. Regular expense
+        $this->actingAs($user)->postJson('/api/v1/transactions', [
+            'account_id'    => $account1->id,
+            'type'          => 'expense',
+            'amount'        => 50,
+            'currency_code' => 'EUR',
+            'date'          => '2026-07-03',
+        ]);
+
+        // 2. Regular income
+        $this->actingAs($user)->postJson('/api/v1/transactions', [
+            'account_id'    => $account1->id,
+            'type'          => 'income',
+            'amount'        => 150,
+            'currency_code' => 'EUR',
+            'date'          => '2026-07-03',
+        ]);
+
+        // 3. Transfer (creates 1 expense and 1 income connected by transfer_id)
+        $this->actingAs($user)->postJson('/api/v1/transactions', [
+            'account_id'    => $account1->id,
+            'to_account_id' => $account2->id,
+            'type'          => 'transfer',
+            'amount'        => 200,
+            'currency_code' => 'EUR',
+            'date'          => '2026-07-03',
+        ]);
+
+        // Assert type=expense returns only 1 transaction
+        $response = $this->actingAs($user)->getJson('/api/v1/transactions?type=expense');
+        $response->assertStatus(200);
+        $response->assertJsonCount(1, 'data');
+        $this->assertEquals('expense', $response->json('data.0.type'));
+
+        // Assert type=income returns only 1 transaction
+        $response = $this->actingAs($user)->getJson('/api/v1/transactions?type=income');
+        $response->assertStatus(200);
+        $response->assertJsonCount(1, 'data');
+        $this->assertEquals('income', $response->json('data.0.type'));
+
+        // Assert type=transfer returns both parts of the transfer (2 transactions)
+        $response = $this->actingAs($user)->getJson('/api/v1/transactions?type=transfer');
+        $response->assertStatus(200);
+        $response->assertJsonCount(2, 'data');
+        $this->assertNotNull($response->json('data.0.transfer_id'));
+        $this->assertNotNull($response->json('data.1.transfer_id'));
+    }
 }
+

@@ -23,7 +23,12 @@ class TransactionService
             ->with(['account', 'category', 'tags', 'relatedTransaction.account'])
             ->when($filters['account_id'] ?? null, fn ($q, $v) => $q->where('account_id', $v))
             ->when($filters['category_id'] ?? null, fn ($q, $v) => $q->where('category_id', $v))
-            ->when($filters['type'] ?? null, fn ($q, $v) => $q->where('type', $v))
+            ->when($filters['type'] ?? null, function ($q, $v) {
+                if ($v === 'transfer') {
+                    return $q->whereNotNull('transfer_id');
+                }
+                return $q->where('type', $v)->whereNull('transfer_id');
+            })
             ->when($filters['currency_code'] ?? null, fn ($q, $v) => $q->where('currency_code', $v))
             ->when($filters['date_from'] ?? null, fn ($q, $v) => $q->whereDate('date', '>=', $v))
             ->when($filters['date_to'] ?? null, fn ($q, $v) => $q->whereDate('date', '<=', $v))
