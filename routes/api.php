@@ -22,9 +22,9 @@ Route::prefix('v1')->group(function () {
         Route::post('register', [AuthController::class, 'register'])->middleware('throttle:register');
         Route::post('login', [AuthController::class, 'login'])->middleware('throttle:login');
 
-        // Password reset — public, no auth required
-        Route::post('password/forgot', [ForgotPasswordController::class, 'sendResetLink']);
-        Route::post('password/reset', [ResetPasswordController::class, 'reset']);
+        // Password reset — public, strict rate limiting to prevent email spam
+        Route::post('password/forgot', [ForgotPasswordController::class, 'sendResetLink'])->middleware('throttle:5,1');
+        Route::post('password/reset', [ResetPasswordController::class, 'reset'])->middleware('throttle:5,1');
 
         Route::middleware('auth:sanctum')->group(function () {
             Route::post('logout', [AuthController::class, 'logout']);

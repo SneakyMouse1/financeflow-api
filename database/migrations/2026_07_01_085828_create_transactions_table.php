@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('account_id')->constrained()->cascadeOnDelete();
             /*
              * nullable + nullOnDelete() — the category may not be specified (when transferring between accounts),
-             * and if the category is deleted, the transaction will not be deleted; the `category_id` will simply become null
+             * and if the category is deleted, the transaction will not be deleted; the `category_id` will become null
              */
             $table->foreignId('category_id')->nullable()->constrained()->nullOnDelete();
             $table->string('type'); // income, expense, transfer
@@ -41,6 +41,10 @@ return new class extends Migration
             $table->index('created_at');
             $table->index('currency_code');
             $table->index('transfer_id');
+
+            // Composite indexes for common query patterns (user filtering + sorting/date range)
+            $table->index(['user_id', 'date', 'account_id']);
+            $table->index(['user_id', 'date', 'category_id']);
         });
     }
 

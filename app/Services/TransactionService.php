@@ -55,7 +55,7 @@ class TransactionService
     {
         // DB::transaction() ensures that if any step fails,
         // all database changes are rolled back automatically.
-        return DB::transaction(function () use ($user, $data) {
+        $result = DB::transaction(function () use ($user, $data) {
             if ($data['type'] === TransactionType::Transfer->value) {
                 return $this->createTransfer($user, $data);
             }
@@ -72,6 +72,10 @@ class TransactionService
 
             return $transaction;
         });
+
+        DashboardService::clearCache($user);
+
+        return $result;
     }
 
     public function update(Transaction $transaction, array $data): Transaction
@@ -92,7 +96,7 @@ class TransactionService
             ]);
         }
 
-        return DB::transaction(function () use ($transaction, $data) {
+        $result = DB::transaction(function () use ($transaction, $data) {
             // Revert the old balance effect before applying the new one
             $this->revertAccountBalance($transaction->account, $transaction->type->value, $transaction->amount);
 
@@ -139,6 +143,10 @@ class TransactionService
 
             return $transaction;
         });
+
+        DashboardService::clearCache($transaction->user_id);
+
+        return $result;
     }
 
     /**
@@ -146,6 +154,8 @@ class TransactionService
      */
     public function delete(Transaction $transaction): void
     {
+        $userId = $transaction->user_id;
+
         DB::transaction(function () use ($transaction) {
             $this->revertAccountBalance($transaction->account, $transaction->type->value, $transaction->amount);
 
@@ -155,9 +165,6 @@ class TransactionService
                 $goal = $goalDeposit->goal;
                 $goal->decrement('current_amount', $goalDeposit->amount);
                 
-                // If current_amount drops below target_amount, we might want to revert the status.
-                // As noted, we will keep status transitions simple, but we should make sure status
-                // updates to active if it's no longer completed (optional, but clean):
                 if ($goal->current_amount < $goal->target_amount && $goal->status->value === 'completed') {
                     $goal->update(['status' => GoalStatus::Active->value]);
                 }
@@ -177,13 +184,13 @@ class TransactionService
                 $transaction->relatedTransaction->delete();
             }
 
-            // Clean up attachments before soft-deleting the transaction,
-            // otherwise files stay on disk and DB records become orphaned
-            // (AttachmentPolicy cannot authorize deletion after parent is soft-deleted).
+            // Clean up attachments before soft-deleting the transaction
             $this->deleteAttachments($transaction);
 
             $transaction->delete();
         });
+
+        DashboardService::clearCache($userId);
     }
 
     private function createTransfer(User $user, array $data): Transaction

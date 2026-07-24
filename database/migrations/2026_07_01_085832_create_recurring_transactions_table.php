@@ -29,7 +29,8 @@ return new class extends Migration
 
             $table->index('user_id');
             $table->index('next_run_at');
-            $table->index(['user_id', 'is_active']); // Composite index for scheduler query
+            $table->index(['user_id', 'is_active']);
+            $table->index(['is_active', 'next_run_at']); // Composite index for daily scheduler query
 
             /*
              * next_run_at — the date of the next run. Every day, the scheduler checks all active
