@@ -41,14 +41,20 @@ class UserObserver
             ['name' => 'Other Income',    'type' => TransactionType::Income,  'color' => '#06b6d4', 'icon' => 'wallet'],
         ];
 
-        foreach ($defaults as $category) {
-            $user->categories()->create([
+        $now = now();
+        $records = array_map(function ($category) use ($user, $now) {
+            return [
+                'user_id'    => $user->id,
                 'name'       => $category['name'],
-                'type'       => $category['type'],
+                'type'       => $category['type']->value,
                 'color'      => $category['color'],
                 'icon'       => $category['icon'],
                 'is_default' => true,
-            ]);
-        }
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+        }, $defaults);
+
+        \App\Models\Category::insert($records);
     }
 }

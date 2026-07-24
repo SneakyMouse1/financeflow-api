@@ -77,6 +77,21 @@ class AuthTest extends TestCase
             ->assertStatus(200);
     }
 
+    public function test_password_reset_rate_limiting_triggers_at_6th_request()
+    {
+        Notification::fake();
+
+        // Perform 5 attempts (allowed)
+        for ($i = 0; $i < 5; $i++) {
+            $this->postJson('/api/v1/auth/password/forgot', ['email' => 'test@example.com'])
+                ->assertStatus(200);
+        }
+
+        // 6th attempt should trigger 429 Too Many Requests
+        $this->postJson('/api/v1/auth/password/forgot', ['email' => 'test@example.com'])
+            ->assertStatus(429);
+    }
+
     public function test_can_delete_account_with_correct_password()
     {
         $user = User::factory()->create(['password' => bcrypt('secret123')]);

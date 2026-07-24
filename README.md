@@ -1,7 +1,7 @@
 ## Related repositories
-- Frontend (React SPA): [financeflow-web](https://github.com/SneakyMouse1/financeflow-web)
+- Frontend (React SPA): [shiftspend-web](https://github.com/SneakyMouse1/shiftspend-web)
 
-# FinanceFlow API
+# ShiftSpend API
 
 A RESTful API for personal finance management built with Laravel.
 
@@ -27,8 +27,8 @@ A RESTful API for personal finance management built with Laravel.
 
 1. Clone the repository:
    ```bash
-   git clone <repository-url>
-   cd financeflow-api
+   git clone https://github.com/SneakyMouse1/shiftspend-api.git
+   cd shiftspend-api
    ```
 
 2. Install dependencies:
@@ -84,6 +84,12 @@ To run PHPStan static analysis:
 ```bash
 vendor/bin/phpstan analyse --memory-limit=-1
 ```
+
+## Authors & Contributors
+
+Developed jointly by:
+- **Sam** ([@SneakyMouse1](https://github.com/SneakyMouse1)) — Full-stack Developer & Co-creator
+- **Tati** ([@Teana-san](https://github.com/Teana-san)) — Full-stack Developer & Co-creator
 
 ## License
 

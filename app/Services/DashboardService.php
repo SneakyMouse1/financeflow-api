@@ -7,23 +7,37 @@ use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class DashboardService
 {
+    public const CACHE_TTL = 300;
+
     public function getData(User $user): array
     {
-        $now = Carbon::now();
-        $startOfMonth = $now->copy()->startOfMonth();
-        $endOfMonth = $now->copy()->endOfMonth();
-        $thirtyDaysAgo = $now->copy()->subDays(30)->startOfDay();
+        return Cache::remember("dashboard:user_{$user->id}", self::CACHE_TTL, function () use ($user) {
+            $now = Carbon::now();
+            $startOfMonth = $now->copy()->startOfMonth();
+            $endOfMonth = $now->copy()->endOfMonth();
+            $thirtyDaysAgo = $now->copy()->subDays(30)->startOfDay();
 
-        return [
-            'summary' => $this->getSummary($user, $startOfMonth, $endOfMonth),
-            'recent_transactions' => $this->getRecentTransactions($user),
-            'chart' => $this->getChartData($user, $thirtyDaysAgo, $now),
-            'top_categories' => $this->getTopCategories($user, $startOfMonth, $endOfMonth),
-        ];
+            return [
+                'summary' => $this->getSummary($user, $startOfMonth, $endOfMonth),
+                'recent_transactions' => $this->getRecentTransactions($user),
+                'chart' => $this->getChartData($user, $thirtyDaysAgo, $now),
+                'top_categories' => $this->getTopCategories($user, $startOfMonth, $endOfMonth),
+            ];
+        });
+    }
+
+    /**
+     * Clear the cached dashboard data.
+     */
+    public static function clearCache(User|int $user): void
+    {
+        $userId = $user instanceof User ? $user->id : $user;
+        Cache::forget("dashboard:user_{$userId}");
     }
 
     /**
